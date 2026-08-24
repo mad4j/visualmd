@@ -1,11 +1,13 @@
 :root {
   color-scheme: light;
-  --bg: #f4f5f7;
+  --bg: #f3f6fb;
   --surface: #ffffff;
-  --text: #1f2937;
-  --muted: #6b7280;
+  --text: #0f172a;
+  --muted: #64748b;
   --primary: #2563eb;
-  --border: #d1d5db;
+  --border: #dbe3f1;
+  --ring: #bfdbfe;
+  --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
 
 * {
@@ -17,6 +19,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
+  min-height: 100vh;
 }
 
 .app-header {
@@ -27,49 +30,97 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.75rem 1rem;
-  background: var(--surface);
+  padding: 0.9rem 1rem;
+  background: color-mix(in srgb, var(--surface) 92%, #eff6ff);
   border-bottom: 1px solid var(--border);
 }
 
-h1,
-h2 {
+h1 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
 }
 
 .editor-layout {
   display: grid;
-  gap: 0.75rem;
-  padding: 0.75rem;
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
-.pane {
+.workspace-panel {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 0.75rem;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
-label {
-  display: inline-block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.panel-header p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.panel-body {
+  padding: 0.85rem 1rem 1rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 textarea {
   width: 100%;
   min-height: 50vh;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 0.75rem;
   font: 0.95rem/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   resize: vertical;
+  color: var(--text);
+  background: #fbfdff;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px var(--ring);
 }
 
 .preview-content {
   min-height: 50vh;
   overflow-wrap: anywhere;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.9rem;
+  background: #fbfdff;
 }
 
 .preview-content p {
@@ -93,11 +144,12 @@ textarea {
 
 button.secondary {
   border: 1px solid var(--border);
-  background: #eef2ff;
+  background: linear-gradient(180deg, #eff6ff 0%, #e0ecff 100%);
   color: var(--primary);
-  padding: 0.45rem 0.75rem;
+  padding: 0.5rem 0.8rem;
   border-radius: 8px;
   font-weight: 600;
+  cursor: pointer;
 }
 
 button.secondary:active {
@@ -115,7 +167,7 @@ button.secondary:active {
 
   textarea,
   .preview-content {
-    min-height: calc(100vh - 8rem);
+    min-height: calc(100vh - 10.5rem);
   }
 }
 
