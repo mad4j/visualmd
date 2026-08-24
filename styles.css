@@ -72,6 +72,7 @@ h1 {
 .panel-header h2 {
   margin: 0;
   font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .panel-header p {
