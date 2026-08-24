@@ -1,5 +1,6 @@
 # visualmd
 Editor Visual Markdown in formato PWA.
+L'interfaccia corrente è in italiano.
 
 ## Avvio locale
 
