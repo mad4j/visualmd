@@ -1,12 +1,12 @@
 # visualmd
-Visual Markdown editor PWA.
+Editor Visual Markdown in formato PWA.
 
-## Run locally
+## Avvio locale
 
-Any static server works, for example:
+Va bene qualunque server statico, ad esempio:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Then open http://localhost:8080.
+Poi apri http://localhost:8080.
