@@ -1,13 +1,8 @@
-const CACHE_NAME = "visualmd-v1";
-const ASSETS = [
-  "/",
-  "/index.html",
-  "/styles.css",
-  "/app.js",
-  "/manifest.webmanifest",
-  "/icons/icon-192.svg",
-  "/icons/icon-512.svg"
-];
+const CACHE_NAME = "visualmd-v2";
+const BASE_URL = new URL("./", self.location);
+const ASSETS = ["", "index.html", "styles.css", "app.js", "manifest.webmanifest", "icons/icon-192.svg", "icons/icon-512.svg"].map(
+  (path) => new URL(path, BASE_URL).href
+);
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)));
@@ -35,7 +30,7 @@ self.addEventListener("fetch", (event) => {
             .catch(() => {})
             .then(() => response);
         })
-        .catch(() => caches.match("/index.html"));
+        .catch(() => caches.match(new URL("index.html", BASE_URL).href));
     })
   );
 });
