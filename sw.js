@@ -1,12 +1,12 @@
-const CACHE_NAME = "visualmd-v1";
+const CACHE_NAME = "visualmd-v2";
 const ASSETS = [
-  "/",
-  "/index.html",
-  "/styles.css",
-  "/app.js",
-  "/manifest.webmanifest",
-  "/icons/icon-192.svg",
-  "/icons/icon-512.svg"
+  "./",
+  "index.html",
+  "styles.css",
+  "app.js",
+  "manifest.webmanifest",
+  "icons/icon-192.svg",
+  "icons/icon-512.svg"
 ];
 
 self.addEventListener("install", (event) => {
@@ -35,7 +35,7 @@ self.addEventListener("fetch", (event) => {
             .catch(() => {})
             .then(() => response);
         })
-        .catch(() => caches.match("/index.html"));
+        .catch(() => caches.match("index.html"));
     })
   );
 });
