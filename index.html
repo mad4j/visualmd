@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1f2937" />
+    <title>VisualMD</title>
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>VisualMD</h1>
+      <button id="toggleView" class="secondary" type="button" aria-pressed="false">Anteprima</button>
+    </header>
+
+    <main class="editor-layout" id="layout">
+      <section class="pane input-pane" id="inputPane" aria-label="Editor markdown">
+        <label for="markdownInput">Markdown</label>
+        <textarea id="markdownInput" spellcheck="false" placeholder="# Inizia a scrivere...&#10;&#10;Supporta heading, liste, link, grassetto e corsivo."></textarea>
+      </section>
+
+      <section class="pane preview-pane" id="previewPane" aria-label="Anteprima">
+        <h2>Anteprima</h2>
+        <article id="preview" class="preview-content"></article>
+      </section>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
