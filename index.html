@@ -15,14 +15,25 @@
     </header>
 
     <main class="editor-layout" id="layout">
-      <section class="pane input-pane" id="inputPane" aria-label="Editor markdown">
-        <label for="markdownInput">Markdown</label>
-        <textarea id="markdownInput" spellcheck="false" placeholder="# Inizia a scrivere...&#10;&#10;Supporta heading, liste, link, grassetto e corsivo."></textarea>
+      <section class="workspace-panel input-pane" id="inputPane" aria-label="Editor markdown">
+        <header class="panel-header">
+          <h2>Editor</h2>
+          <p>Scrivi in Markdown</p>
+        </header>
+        <div class="panel-body">
+          <label class="visually-hidden" for="markdownInput">Markdown</label>
+          <textarea id="markdownInput" spellcheck="false" placeholder="# Inizia a scrivere...&#10;&#10;Supporta heading, liste, link, grassetto e corsivo."></textarea>
+        </div>
       </section>
 
-      <section class="pane preview-pane" id="previewPane" aria-label="Anteprima">
-        <h2>Anteprima</h2>
-        <article id="preview" class="preview-content"></article>
+      <section class="workspace-panel preview-pane" id="previewPane" aria-label="Anteprima">
+        <header class="panel-header">
+          <h2>Anteprima</h2>
+          <p>Rendering in tempo reale</p>
+        </header>
+        <div class="panel-body">
+          <article id="preview" class="preview-content"></article>
+        </div>
       </section>
     </main>
 
