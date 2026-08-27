@@ -1,7 +1,5 @@
 const markdownInput = document.getElementById("markdownInput");
-const preview = document.getElementById("preview");
-const layout = document.getElementById("layout");
-const toggleView = document.getElementById("toggleView");
+const mdOverlay = document.getElementById("mdOverlay");
 
 const storageKey = "visualmd:draft";
 const defaultMarkdown = `# VisualMD\n\nEditor markdown visuale pensato anche per mobile.\n\n- Scrivi nel riquadro\n- Vedi l'anteprima\n- Alterna vista su smartphone\n\n**Buon editing!**`;
@@ -15,97 +13,114 @@ function escapeHtml(input) {
     .replaceAll("'", "&#39;");
 }
 
-function inlineMarkdown(text) {
-  return text
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" rel="noopener noreferrer" target="_blank">$1</a>');
+// Escapes a plain text segment that hasn't been processed yet
+function escapeSegment(text) {
+  return escapeHtml(text);
 }
 
-function parseMarkdown(markdown) {
-  const lines = escapeHtml(markdown).split(/\r?\n/);
+// Takes raw (unescaped) inline text, escapes text nodes, wraps syntax spans
+function inlineMarkdown(raw) {
+  // Process in a single pass using a regex that matches all inline patterns
+  const pattern = /(`[^`]+`|\*\*[^*]+\*\*|\*[^*]+\*|\[([^\]]+)\]\((https?:\/\/[^)\s]+)\))/g;
+  let result = "";
+  let last = 0;
+  let match;
+
+  while ((match = pattern.exec(raw)) !== null) {
+    // Escape and append the plain text before this match
+    result += escapeSegment(raw.slice(last, match.index));
+    last = match.index + match[0].length;
+
+    const full = match[0];
+    if (full.startsWith("`")) {
+      const inner = full.slice(1, -1);
+      result += `<span class="md-syntax">\`</span><span class="md-code">${escapeSegment(inner)}</span><span class="md-syntax">\`</span>`;
+    } else if (full.startsWith("**")) {
+      const inner = full.slice(2, -2);
+      result += `<span class="md-syntax">**</span><span class="md-bold">${escapeSegment(inner)}</span><span class="md-syntax">**</span>`;
+    } else if (full.startsWith("*")) {
+      const inner = full.slice(1, -1);
+      result += `<span class="md-syntax">*</span><span class="md-italic">${escapeSegment(inner)}</span><span class="md-syntax">*</span>`;
+    } else {
+      // Link [label](url) — url is already validated as https? by regex
+      const label = match[2];
+      const url = match[3];
+      result += `<span class="md-syntax">[</span><span class="md-link">${escapeSegment(label)}</span><span class="md-syntax">](${escapeSegment(url)})</span>`;
+    }
+  }
+
+  result += escapeSegment(raw.slice(last));
+  return result;
+}
+
+function renderOverlay(markdown) {
+  const lines = markdown.split(/\r?\n/);
   const html = [];
-  let inList = false;
   let inCodeBlock = false;
 
   for (const line of lines) {
     if (line.startsWith("```")) {
-      if (inCodeBlock) {
-        html.push("</code></pre>");
-        inCodeBlock = false;
-      } else {
-        html.push("<pre><code>");
-        inCodeBlock = true;
-      }
+      inCodeBlock = !inCodeBlock;
+      html.push(`<div><span class="md-syntax">${escapeHtml(line)}</span></div>`);
       continue;
     }
 
     if (inCodeBlock) {
-      html.push(`${line}\n`);
+      html.push(`<div><span class="md-code-block">${escapeHtml(line)}</span></div>`);
+      continue;
+    }
+
+    if (!line.trim()) {
+      html.push(`<div>\u200b</div>`);
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,6})(\s+)(.+)$/);
+    if (heading) {
+      const level = heading[1].length;
+      html.push(`<div><span class="md-syntax">${escapeHtml(heading[1] + heading[2])}</span><span class="md-heading md-heading-${level}">${inlineMarkdown(heading[3])}</span></div>`);
       continue;
     }
 
     if (line.startsWith("- ")) {
-      if (!inList) {
-        html.push("<ul>");
-        inList = true;
-      }
-      html.push(`<li>${inlineMarkdown(line.slice(2))}</li>`);
+      html.push(`<div><span class="md-syntax">- </span>${inlineMarkdown(line.slice(2))}</div>`);
       continue;
     }
 
-    if (inList) {
-      html.push("</ul>");
-      inList = false;
-    }
-
-    if (!line.trim()) {
-      html.push("");
+    const orderedMatch = line.match(/^(\d+\. )(.*)/);
+    if (orderedMatch) {
+      html.push(`<div><span class="md-syntax">${escapeHtml(orderedMatch[1])}</span>${inlineMarkdown(orderedMatch[2])}</div>`);
       continue;
     }
 
-    const heading = line.match(/^(#{1,6})\s+(.+)$/);
-    if (heading) {
-      const level = heading[1].length;
-      html.push(`<h${level}>${inlineMarkdown(heading[2])}</h${level}>`);
+    if (line.startsWith("> ")) {
+      html.push(`<div><span class="md-syntax">&gt; </span><span class="md-blockquote">${inlineMarkdown(line.slice(2))}</span></div>`);
       continue;
     }
 
-    html.push(`<p>${inlineMarkdown(line)}</p>`);
+    html.push(`<div>${inlineMarkdown(line)}</div>`);
   }
 
-  if (inList) html.push("</ul>");
-  if (inCodeBlock) html.push("</code></pre>");
+  return html.join("");
+}
 
-  return html.join("\n");
+function syncScroll() {
+  mdOverlay.scrollTop = markdownInput.scrollTop;
 }
 
 function render() {
   const value = markdownInput.value;
-  preview.innerHTML = parseMarkdown(value);
+  mdOverlay.innerHTML = renderOverlay(value);
+  syncScroll();
   localStorage.setItem(storageKey, value);
-}
-
-function setMobileView(showPreview) {
-  layout.classList.toggle("preview-only", showPreview);
-  layout.classList.toggle("input-only", !showPreview);
-  toggleView.textContent = showPreview ? "Editor" : "Anteprima";
-  toggleView.setAttribute("aria-pressed", String(showPreview));
 }
 
 const saved = localStorage.getItem(storageKey);
 markdownInput.value = saved || defaultMarkdown;
-setMobileView(false);
 render();
 
 markdownInput.addEventListener("input", render);
-
-if (toggleView) {
-  toggleView.addEventListener("click", () => {
-    setMobileView(!layout.classList.contains("preview-only"));
-  });
-}
+markdownInput.addEventListener("scroll", syncScroll);
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

@@ -3,11 +3,17 @@
   --bg: #f3f6fb;
   --surface: #ffffff;
   --text: #0f172a;
-  --muted: #64748b;
+  --muted: #94a3b8;
   --primary: #2563eb;
   --border: #dbe3f1;
   --ring: #bfdbfe;
   --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+
+  /* Shared editor font — must match between textarea and overlay */
+  --editor-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --editor-size: 1rem;
+  --editor-line: 1.75;
+  --editor-padding: 1.25rem 1.5rem;
 }
 
 * {
@@ -16,7 +22,7 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--editor-font);
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -28,7 +34,6 @@ body {
   z-index: 10;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   padding: 0.9rem 1rem;
   background: color-mix(in srgb, var(--surface) 92%, #eff6ff);
@@ -43,52 +48,128 @@ h1 {
 }
 
 .editor-layout {
-  display: grid;
-  gap: 1rem;
   padding: 1rem;
-  max-width: 1280px;
+  max-width: 860px;
   margin: 0 auto;
-  align-items: stretch;
+  height: calc(100vh - 3.8rem);
+  display: flex;
+  flex-direction: column;
 }
 
-.workspace-panel {
+/* ── Single pane ── */
+.editor-pane {
+  position: relative;
+  flex: 1;
+  min-height: 0;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
   box-shadow: var(--shadow);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+/* Overlay: rendered markdown, sits behind the textarea */
+.md-overlay {
+  position: absolute;
+  inset: 0;
+  padding: var(--editor-padding);
+  font-family: var(--editor-font);
+  font-size: var(--editor-size);
+  line-height: var(--editor-line);
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  pointer-events: none;
+  z-index: 0;
 }
 
-.panel-header h2 {
-  margin: 0;
-  font-size: 0.95rem;
+/* Transparent textarea on top, captures all input */
+textarea {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: var(--editor-padding);
+  font-family: var(--editor-font);
+  font-size: var(--editor-size);
+  line-height: var(--editor-line);
+  color: transparent;
+  caret-color: var(--text);
+  background: transparent;
+  border: none;
+  resize: none;
+  outline: none;
+  z-index: 1;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+textarea:focus {
+  /* Subtle ring on the pane itself */
+  box-shadow: none;
+}
+
+.editor-pane:focus-within {
+  border-color: #93c5fd;
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+/* ── MD syntax characters: faded ── */
+.md-syntax {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.82em;
+  opacity: 0.7;
+}
+
+/* ── Heading content ── */
+.md-heading {
   font-weight: 700;
 }
 
-.panel-header p {
-  margin: 0;
-  font-size: 0.8rem;
-  color: var(--muted);
+.md-heading-1 { font-size: 1.7em; }
+.md-heading-2 { font-size: 1.4em; }
+.md-heading-3 { font-size: 1.2em; }
+.md-heading-4 { font-size: 1.05em; }
+.md-heading-5 { font-size: 0.95em; }
+.md-heading-6 { font-size: 0.85em; color: var(--muted); }
+
+/* ── Inline formatting ── */
+.md-bold   { font-weight: 700; }
+.md-italic { font-style: italic; }
+
+.md-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 0.88em;
+  background: #f1f5f9;
+  border-radius: 3px;
+  padding: 0.05em 0.25em;
 }
 
-.panel-body {
-  padding: 0.85rem 1rem 1rem;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
+.md-code-block {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+  font-size: 0.88em;
+  color: #334155;
+}
+
+.md-blockquote {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.md-link {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+/* Zero-width space for blank lines keeps height correct */
+.md-overlay div:empty::before,
+.md-overlay div:has(> :only-child:not([class])) {
+  display: block;
 }
 
 .visually-hidden {
@@ -101,94 +182,4 @@ h1 {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-textarea {
-  width: 100%;
-  flex: 1;
-  min-height: 0;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.75rem;
-  font: 0.95rem/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  resize: none;
-  color: var(--text);
-  background: #fbfdff;
-  outline: none;
-}
-
-textarea:focus {
-  border-color: #93c5fd;
-  box-shadow: 0 0 0 3px var(--ring);
-}
-
-.preview-content {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-wrap: anywhere;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 0.9rem;
-  background: #fbfdff;
-}
-
-.preview-content p {
-  line-height: 1.6;
-}
-
-.preview-content pre,
-.preview-content code {
-  background: #f3f4f6;
-  border-radius: 4px;
-}
-
-.preview-content pre {
-  padding: 0.75rem;
-  overflow: auto;
-}
-
-.preview-content code {
-  padding: 0.1rem 0.3rem;
-}
-
-button.secondary {
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, #eff6ff 0%, #e0ecff 100%);
-  color: var(--primary);
-  padding: 0.5rem 0.8rem;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-button.secondary:active {
-  transform: scale(0.98);
-}
-
-@media (min-width: 900px) {
-  #toggleView {
-    display: none;
-  }
-
-  .editor-layout {
-    grid-template-columns: 1fr 1fr;
-    height: calc(100vh - 3.8rem);
-  }
-}
-
-@media (max-width: 899px) {
-  .editor-layout.preview-only .input-pane,
-  .editor-layout.input-only .preview-pane {
-    display: none;
-  }
-
-  .editor-layout.preview-only .preview-pane,
-  .editor-layout.input-only .input-pane {
-    display: flex;
-  }
-
-  .workspace-panel {
-    height: calc(100vh - 5rem);
-  }
 }

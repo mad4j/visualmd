@@ -11,30 +11,14 @@
   <body>
     <header class="app-header">
       <h1>VisualMD</h1>
-      <button id="toggleView" class="secondary" type="button" aria-pressed="false">Anteprima</button>
     </header>
 
-    <main class="editor-layout" id="layout">
-      <section class="workspace-panel input-pane" id="inputPane" aria-label="Editor markdown">
-        <header class="panel-header">
-          <h2>Editor</h2>
-          <p>Scrivi in Markdown</p>
-        </header>
-        <div class="panel-body">
-          <label class="visually-hidden" for="markdownInput">Markdown</label>
-          <textarea id="markdownInput" spellcheck="false" placeholder="# Inizia a scrivere...&#10;&#10;Supporta heading, liste, link, grassetto e corsivo."></textarea>
-        </div>
-      </section>
-
-      <section class="workspace-panel preview-pane" id="previewPane" aria-label="Anteprima">
-        <header class="panel-header">
-          <h2>Anteprima</h2>
-          <p>Rendering in tempo reale</p>
-        </header>
-        <div class="panel-body">
-          <article id="preview" class="preview-content"></article>
-        </div>
-      </section>
+    <main class="editor-layout">
+      <div class="editor-pane">
+        <label class="visually-hidden" for="markdownInput">Markdown</label>
+        <div class="md-overlay" id="mdOverlay" aria-hidden="true"></div>
+        <textarea id="markdownInput" spellcheck="false" placeholder="# Inizia a scrivere...&#10;&#10;Supporta heading, liste, link, grassetto e corsivo."></textarea>
+      </div>
     </main>
 
     <script src="app.js"></script>
